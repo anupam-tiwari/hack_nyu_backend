@@ -1,41 +1,44 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const cors = require("cors");
-const mongoose = require('mongoose');
+import {initializeApp} from "firebase/app"
+import {getAuth, GoogleAuthProvider, signInWithRedirect, signOut, getRedirectResult, signInWithPopup} from "firebase/auth"
 
-const authRouter = require('./routes/auth');
-const accountRouter = require('./routes/account')
-require("dotenv").config();
+const firebaseConfig = {
+    // apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+    // authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+    // databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
+    // projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+    // storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+    // messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+    // appId: process.env.REACT_APP_FIREBASE_APP_ID
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 
+    apiKey: "AIzaSyDLLwblV5x0tf9ho-HOhLsk0pMv-6FrcMM",
+    authDomain: "hackathon-1c1a9.firebaseapp.com",
+    projectId: "hackathon-1c1a9",
+    storageBucket: "hackathon-1c1a9.appspot.com",
+    messagingSenderId: "585777228268",
+    appId: "1:585777228268:web:9b0f62c3773ed77ff9b8c9",
+    measurementId: "G-PV5T99PE4G"
+  
+  }
 
-const DBURL = process.env.DBURL;
-const app = express();
+const app = initializeApp(firebaseConfig)
+const auth = getAuth(app)
 
-app.use(bodyParser.json());
-app.use(cors());
-app.use('/auth', authRouter)
-app.use('/account',accountRouter)
+const googleProvider = new GoogleAuthProvider(); 
 
-const connectionParams = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-};
+const signInWithGoogle = async () => {
+    try{
+        const res = await signInWithPopup(auth, googleProvider)
 
-mongoose
-  .connect('mongodb+srv://hacknyu:XcTcnhyeKX5PP6b0@meta.mkvgfml.mongodb.net/?retryWrites=true&w=majority', connectionParams)
-  .then(() => {
-    console.log("connected to db");
-  })
-  .catch((err) => {
-    console.log(`${err}`);
-  });
+    }catch(err){
+        console.log(err);
+        alert(err.message)
+    }
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+}
 
-app.get('/', (req,res) => {
-    res.send('hello world')
-})
+const logout =() => {
+    signOut(auth);
+}
 
-
-app.listen(process.env.PORT || 4000, () => console.log(`Started server`));
+export {signInWithGoogle, auth, logout}; 
