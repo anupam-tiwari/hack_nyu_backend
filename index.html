@@ -1,0 +1,118 @@
+<!DOCTYPE html>   
+<html>   
+<head>  
+<meta name="viewport" content="width=device-width, initial-scale=1">  
+<title> Login Page </title>  
+<style>   
+Body {  
+  font-family: Calibri, Helvetica, sans-serif;  
+  background-color: rgb(107, 9, 253);  
+}  
+button {   
+       background-color: #4CAF50;   
+       width: 100%;  
+        color: orange;   
+        padding: 15px;   
+        margin: 10px 0px;   
+        border: none;   
+        cursor: pointer;   
+         }   
+ form {   
+        border: 3px solid #f1f1f1;   
+    }   
+ input[type=text], input[type=password] {   
+        width: 100%;   
+        margin: 8px 0;  
+        padding: 12px 20px;   
+        display: inline-block;   
+        border: 2px solid green;   
+        box-sizing: border-box;   
+    }  
+ button:hover {   
+        opacity: 0.7;   
+    }   
+  .cancelbtn {   
+        width: auto;   
+        padding: 10px 18px;  
+        margin: 10px 5px;  
+    }   
+        
+     
+ .container {   
+        padding: 25px;   
+        background-color: rgb(217, 173, 230);  
+    }   
+</style>   
+</head>    
+<body>    
+    <center> <h1> Hacker Login Form </h1> </center>   
+    <form>  
+        <div class="container"> 
+            <label>Please allow location when prompted!</label> <br>
+            <label>Email: </label>   
+            <input type="text" placeholder="Enter email used for registration" name="email" required>  
+            <!-- <label>Password : </label>   
+            <input type="password" placeholder="Enter Password" name="password" required> -->
+            <label>Organization : </label>   
+            <input type="text" placeholder="Enter where do you work" name="Organization" required> 
+            <label>Who are you?</label><br>
+            <select name="Occupation" id="Occupation">
+                <option value="Founder">Founder</option>
+                <option value="Mentor">Mentor</option>
+                <option value="Volunteer">Volunteer</option>
+                <option value="Hacker">Hacker</option>
+              </select><br>
+            <label>Interests : </label>   
+            <input type="text" placeholder="Interests" name="Interests" required> 
+            <label>What are you looking for? : </label>   
+            <input type="text" placeholder="Preferred Interests" name="PreferredInterests" required> 
+            <!-- <button onclick="getLocation()">Submit</button>    -->
+            <!-- <input type="checkbox" checked="checked"> Remember me    -->
+            <!-- <button type="button" class="cancelbtn"> Cancel</button>    -->
+            <!-- Forgot <a href="#"> password? </a>    -->
+            <button onclick="getLocation()">Submit</button>
+        </div>   
+    </form>     
+    <script>
+        function getLocation() {
+          if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
+          } else {
+            alert("Geolocation is not supported by this browser.");
+          }
+        }
+    
+        function successCallback(position) {
+          let latitude = position.coords.latitude;
+          let longitude = position.coords.longitude;
+
+          alert("Your location: " + latitude + ", " + longitude);
+          if((latitude>40.7245000 && latitude<40.7248000 )&& (longitude>-73.9910000 && longitude<-73.9920000))
+            alert("Nextpage");
+            else{
+                alert("You aren't in the location");
+            }
+        }
+    
+        function errorCallback(error) {
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              alert("User denied the request for Geolocation.");
+              break;
+            case error.POSITION_UNAVAILABLE:
+              alert("Location information is unavailable.");
+              break;
+            case error.TIMEOUT:
+              alert("The request to get user location timed out.");
+              break;
+            case error.UNKNOWN_ERROR:
+              alert("An unknown error occurred.");
+              break;
+          }
+        }     
+      </script>
+</body>     
+</html>
+
+
+  
