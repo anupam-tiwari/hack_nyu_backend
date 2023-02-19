@@ -1,44 +1,89 @@
-import {initializeApp} from "firebase/app"
-import {getAuth, GoogleAuthProvider, signInWithRedirect, signOut, getRedirectResult, signInWithPopup} from "firebase/auth"
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const mongoose = require('mongoose');
 
-const firebaseConfig = {
-    // apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-    // authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-    // databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
-    // projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-    // storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-    // messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-    // appId: process.env.REACT_APP_FIREBASE_APP_ID
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const MongoClient = require('mongodb').MongoClient;
 
-    apiKey: "AIzaSyDLLwblV5x0tf9ho-HOhLsk0pMv-6FrcMM",
-    authDomain: "hackathon-1c1a9.firebaseapp.com",
-    projectId: "hackathon-1c1a9",
-    storageBucket: "hackathon-1c1a9.appspot.com",
-    messagingSenderId: "585777228268",
-    appId: "1:585777228268:web:9b0f62c3773ed77ff9b8c9",
-    measurementId: "G-PV5T99PE4G"
-  
-  }
+const authRouter = require('./routes/auth');
+const accountRouter = require('./routes/account')
+require("dotenv").config();
 
-const app = initializeApp(firebaseConfig)
-const auth = getAuth(app)
 
-const googleProvider = new GoogleAuthProvider(); 
+const DBURL = process.env.DBURL;
+const app = express();
 
-const signInWithGoogle = async () => {
-    try{
-        const res = await signInWithPopup(auth, googleProvider)
+app.use(bodyParser.json());
+app.use(cors());
+app.use('/auth', authRouter)
+app.use('/account',accountRouter)
 
-    }catch(err){
-        console.log(err);
-        alert(err.message)
+const connectionParams = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+};
+
+mongoose
+  .connect('mongodb+srv://hacknyu:XcTcnhyeKX5PP6b0@meta.mkvgfml.mongodb.net/?retryWrites=true&w=majority', connectionParams)
+  .then(() => {
+    console.log("connected to db");
+  })
+  .catch((err) => {
+    console.log(`${err}`);
+  });
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+// Define a schema for the data you want to save
+const dataSchema = new mongoose.Schema({
+  email: String,
+  organization: String,
+  who_are_you: String,
+  interests: String,
+  looking_for: String
+});
+
+// Create a model based on the schema
+const Data = mongoose.model("Data", dataSchema);
+
+
+// Define a route for handling form submissions
+app.post("/submit", function (req, res) {
+  console.log('Hi Submit')
+  console.log(req.body)
+  const newData = new Data({
+    'email': req.body.email,
+    'organization': req.body.organization,
+    'who_are_you': req.body.occupation,
+    'interests': req.body.interests,
+    'looking_for': req.body.preferred_interests
+  });
+  newData.save(function (err) {
+    if (err) {
+      console.log(err);
+      res.send("There was an error.");
+    } else {
+      res.send("Data saved successfully!");
     }
+  });
+});
 
-}
+// fetch data from MongodB
+const url = 'mongodb+srv://hacknyu:XcTcnhyeKX5PP6b0@meta.mkvgfml.mongodb.net/?retryWrites=true&w=majority'; // Connection URL
+const dbName = 'test'; // Database Name
 
-const logout =() => {
-    signOut(auth);
-}
 
-export {signInWithGoogle, auth, logout}; 
+app.get('/getData', (req, res) => {
+  // Retrieve data from MongoDB database
+  Data.find({}, (err, getData) => {
+    if (err) {
+      console.error(err);
+    } else {
+      // Render HTML page with retrieved data
+      res.render('secondPage', { getData: getData });
+    }
+  });
+});
+
+app.listen(process.env.PORT || 4000, () => console.log(`Started server`));
